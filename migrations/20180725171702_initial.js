@@ -1,0 +1,318 @@
+
+exports.up = function(knex) {
+
+  return knex.schema
+    .createTable('organizations', (table) => {
+      table
+        .string('id')
+        .primary()
+      table
+        .string('sid')
+        .unique()
+      table.string('title')
+      table.string('desc')
+      table.enu('status', ['active', 'inactive', 'deleted'])
+      table.string('meta')
+      table.timestamp('createdAt').defaultTo(knex.fn.now())
+      table.timestamp('updatedAt').defaultTo(knex.fn.now())
+    })
+    .createTable('applications', (table) => {
+      table
+        .string('id')
+        .primary()
+      table.string('title')
+      table
+        .string('sid')
+        .unique()
+      table.string('organizationId')
+      table
+        .foreign('organizationId')
+        .references('id')
+        .inTable('organizations')
+        .onDelete('CASCADE')
+      table.enu('status', ['active', 'inactive', 'deleted'])
+      table.jsonb('meta')
+      table.timestamp('createdAt').defaultTo(knex.fn.now())
+      table.timestamp('updatedAt').defaultTo(knex.fn.now())
+    })
+    .createTable('users', (table) => {
+      table
+        .string('id')
+        .primary()
+      table
+        .string('sid')
+        .unique()
+      table.string('organizationId')
+      table
+        .foreign('organizationId')
+        .references('id')
+        .inTable('organizations')
+        .onDelete('CASCADE')
+      table.string('username')
+      table.string('email')
+      table.string('firstName')
+      table.string('lastName')
+      table.string('imageId')
+      table.string('slug')
+      table.string('timezone')
+      table.string('bio')
+      table.enu('status', ['active', 'inactive', 'deleted'])
+      table.string('hash')
+      table.jsonb('meta')
+      table.jsonb('roles')
+      table.timestamp('createdAt').defaultTo(knex.fn.now())
+      table.timestamp('updatedAt').defaultTo(knex.fn.now())
+    })
+    .createTable('documents', (table) => {
+      table
+        .string('id')
+        .primary()
+      table
+        .string('sid')
+        .unique()
+      table.string('applicationId')
+      table
+        .foreign('applicationId')
+        .references('id')
+        .inTable('applications')
+        .onDelete('CASCADE')
+      table.string('userId')
+      table
+        .foreign('userId')
+        .references('id')
+        .inTable('users')
+        .onDelete('SET NULL')
+      table.string('activeRevisionId')
+      table
+        .foreign('activeRevisionId')
+        .references('id')
+        .inTable('document_revisions')
+        .onDelete('SET NULL')
+      table.string('featuredImageId')
+      table
+        .foreign('featuredImageId')
+        .references('id')
+        .inTable('digital_assets')
+        .onDelete('SET NULL')
+      table.string('title')
+      table.string('slug')
+      table.enu('mode', ['article', 'listacle', 'slideshow'])
+      table.enu('status', ['draft', 'published', 'scheduled', 'deleted'])
+      table.string('excerpt')
+      table.string('permalink')
+      table.string('timezone')
+      table.timestamp('lastPurgedAt')
+      table.timestamp('publishedAt')
+      table.jsonb('tags')
+      table.jsonb('meta')
+      table.unique(['slug', 'applicationId'])
+      table.timestamp('createdAt').defaultTo(knex.fn.now())
+      table.timestamp('updatedAt').defaultTo(knex.fn.now())
+    })
+    .createTable('document_revisions', (table) => {
+      table
+        .string('id')
+        .primary()
+      table
+        .string('sid')
+        .unique()
+      table.string('documentId')
+      table
+        .foreign('documentId')
+        .references('id')
+        .inTable('documents')
+        .onDelete('CASCADE')
+      table.jsonb('cards')
+      table.enu('status', ['active', 'inactive', 'deleted'])
+      table.timestamp('createdAt').defaultTo(knex.fn.now())
+      table.timestamp('updatedAt').defaultTo(knex.fn.now())
+    })
+    .createTable('categories', (table) => {
+      table
+        .string('id')
+        .primary()
+      table
+        .string('sid')
+        .unique()
+      table.string('title')
+      table.string('applicationId')
+      table
+        .foreign('applicationId')
+        .references('id')
+        .inTable('applications')
+        .onDelete('CASCADE')
+      table.jsonb('meta')
+      table.string('slug')
+      table.enu('status', ['active', 'inactive', 'deleted'])
+      table.timestamp('createdAt').defaultTo(knex.fn.now())
+      table.timestamp('updatedAt').defaultTo(knex.fn.now())
+    })
+    .createTable('documents_categories', (table) => {
+      table.string('documentId')
+      table
+        .foreign('documentId')
+        .references('id')
+        .inTable('documents')
+        .onDelete('CASCADE')
+      table.string('categoryId')
+      table
+        .foreign('categoryId')
+        .references('id')
+        .inTable('categories')
+        .onDelete('CASCADE')
+      table.primary(['documentId', 'categoryId'])
+    })
+    .createTable('digital_assets', (table) => {
+      table
+        .string('id')
+        .primary()
+      table
+        .string('sid')
+        .unique()
+      table.string('applicationId')
+      table
+        .foreign('applicationId')
+        .references('id')
+        .inTable('applications')
+        .onDelete('CASCADE')
+      table.string('title')
+      table.string('desc')
+      table.enu('status', ['active', 'inactive', 'deleted'])
+      table.string('mimetype')
+      table.boolean('attribution')
+      table.string('html')
+      table.string('filename')
+      table.string('url')
+      table.jsonb('tags')
+      table.jsonb('meta')
+      table.timestamp('createdAt').defaultTo(knex.fn.now())
+      table.timestamp('updatedAt').defaultTo(knex.fn.now())
+    })
+    .createTable('channels', (table) => {
+      table
+        .string('id')
+        .primary()
+      table
+        .string('sid')
+        .unique()
+      table.string('applicationId')
+      table
+        .foreign('applicationId')
+        .references('id')
+        .inTable('applications')
+        .onDelete('CASCADE')
+      table.string('desc')
+      table.string('slug')
+      table.string('title')
+      table.timestamp('createdAt').defaultTo(knex.fn.now())
+      table.timestamp('updatedAt').defaultTo(knex.fn.now())
+      table.enu('status', ['active', 'inactive', 'deleted'])
+      table.jsonb('resources')
+    })
+    .createTable('facebook_ias', (table) => {
+      table
+        .string('id')
+        .primary()
+      table
+        .string('sid')
+        .unique()
+      table.string('articleId')
+      table.string('articleImportId')
+      table.enu('status', ['active', 'inactive', 'deleted'])
+      table.string('canonicalUrl')
+      table.enu('importStatus', ['success', 'importing', 'failed'])
+      table.string('markup')
+      table.timestamp('createdAt').defaultTo(knex.fn.now())
+      table.timestamp('updatedAt').defaultTo(knex.fn.now())
+    })
+    .createTable('apple_news', (table) => {
+      table
+        .string('id')
+        .primary()
+      table
+        .string('sid')
+        .unique()
+      table.string('articleId')
+      table.jsonb('articleJson')
+      table.string('articleRevision')
+      table.enu('status', ['active', 'inactive', 'deleted'])
+      table.string('documentId')
+      table
+        .foreign('documentId')
+        .references('id')
+        .inTable('documents')
+        .onDelete('CASCADE')
+      table.timestamp('createdAt').defaultTo(knex.fn.now())
+      table.timestamp('updatedAt').defaultTo(knex.fn.now())
+    })
+
+    .createTable('ad_accounts', (table) => {
+      table
+        .string('id')
+        .primary()
+      table.string('sid')
+        .unique()
+      table.string('applicationId')
+      table
+        .foreign('applicationId')
+        .references('id')
+        .inTable('applications')
+        .onDelete('CASCADE')
+      table.string('facebookAdAccountId')
+      table.string('facebookCustomConversionId')
+      table.enu('status', ['active', 'inactive', 'deleted'])
+      table.string('title')
+      table.timestamp('createdAt').defaultTo(knex.fn.now())
+      table.timestamp('updatedAt').defaultTo(knex.fn.now())
+    })
+    .createTable('ad_campaigns', (table) => {
+      table
+        .string('id')
+        .primary()
+      table.string('sid')
+        .unique()
+      table.string('activation')
+      table.string('adAccountId')
+      table
+        .foreign('adAccountId')
+        .references('id')
+        .inTable('ad_accounts')
+        .onDelete('SET NULL')
+      table.string('applicationId')
+      table
+        .foreign('applicationId')
+        .references('id')
+        .inTable('applications')
+        .onDelete('CASCADE')
+      table.boolean('clone')
+      table.jsonb('digitalAssetIds')
+      table.jsonb('fbAdCampaignConfigs')
+      table.jsonb('headlines')
+      table.timestamp('inProgressDate')
+      table.jsonb('platforms')
+      table.string('link')
+      table.jsonb('texts')
+      table.enu('status', ['active', 'inactive', 'deleted'])
+      table.string('title')
+      table.timestamp('createdAt').defaultTo(knex.fn.now())
+      table.timestamp('updatedAt').defaultTo(knex.fn.now())
+    })
+}
+
+exports.down = function(knex) {
+
+  return knex.schema
+    .dropTableIfExists('documents')
+    .dropTableIfExists('document_revisions')
+    .dropTableIfExists('documents_categories')
+    .dropTableIfExists('categories')
+    .dropTableIfExists('users')
+    .dropTableIfExists('channels')
+    .dropTableIfExists('digital_assets')
+    .dropTableIfExists('ad_accounts')
+    .dropTableIfExists('ad_campaigns')
+    .dropTableIfExists('applications')
+    .dropTableIfExists('organizations')
+    .dropTableIfExists('apple_news')
+    .dropTableIfExists('facebook_ias')
+}

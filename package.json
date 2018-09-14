@@ -1,0 +1,54 @@
+{
+  "name": "paradigm-research",
+  "version": "1.1.0",
+  "description": "Paradigm Research",
+  "main": "index.js",
+  "scripts": {
+    "eslint": "node_modules/.bin/eslint src test migrations",
+    "build": "babel src -d build",
+    "migrate": "knex migrate:latest",
+    "start": "npm run build && npm run migrate && node build/app",
+    "test": "mocha --compilers js:babel-core/register --exit && npm run eslint"
+  },
+  "babel": {
+    "presets": [
+      [
+        "env",
+        {
+          "targets": {
+            "node": "current"
+          }
+        }
+      ],
+      "stage-1"
+    ]
+  },
+  "author": "Tom Watson <tom@tomjwatson.com>",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "axios": "^0.18.0",
+    "body-parser": "^1.18.3",
+    "chai": "^4.1.2",
+    "chai-http": "^4.0.0",
+    "chance": "^1.0.16",
+    "express": "^4.16.3",
+    "express-promise-router": "^3.0.3",
+    "knex": "^0.15.2",
+    "morgan": "^1.9.0",
+    "node-uuid": "^1.4.8",
+    "objection": "^1.2.0",
+    "pg": "^7.4.3",
+    "shortid": "^2.2.13",
+    "sqlite3": "^4.0.2"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-core": "^6.26.3",
+    "babel-eslint": "^8.2.6",
+    "babel-preset-env": "^1.7.0",
+    "babel-preset-stage-1": "^6.24.1",
+    "eslint": "^5.4.0",
+    "eslint-config-structure": "^0.1.4",
+    "mocha": "^5.2.0"
+  }
+}
